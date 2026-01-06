@@ -37,9 +37,9 @@
             </a>
           </li>
           <li class="menu-item">
-            <a href="#" class="menu-link">
-              <i class="menu-icon tf-icons ti ti-search"></i>
-              <div>Lost & Found</div>
+            <a href="{{ route('profile.edit') }}" class="menu-link">
+              <i class="menu-icon tf-icons ti ti-user-edit"></i>
+              <div>Edit Profile</div>
             </a>
           </li>
 
@@ -48,7 +48,7 @@
             <li class="menu-item">
               <a href="{{ route('notices.approval') }}" class="menu-link">
                 <i class="menu-icon tf-icons ti ti-shield-check"></i>
-                <div>Approve Notices</div>
+                <div>Approve Notices ({{ $pendingNotices }})</div>
               </a>
             </li>
           @endif
@@ -57,7 +57,7 @@
 
       <div class="layout-page">
 
-        <!-- TOP NAVBAR -->
+        <!-- NAVBAR -->
         <nav class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-info">
           <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
             <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)">
@@ -67,8 +67,6 @@
 
           <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
             <ul class="navbar-nav flex-row align-items-center ms-auto">
-
-              <!-- Dark Mode Toggle -->
               <li class="nav-item me-3">
                 <a href="javascript:void(0);" id="dark-mode-toggle" class="nav-link px-3 text-white">
                   <i class="ti ti-moon ti-lg me-1" id="moon-icon"></i>
@@ -76,45 +74,22 @@
                   <span id="mode-text">Dark Mode</span>
                 </a>
               </li>
-
-              <!-- Profile Dropdown -->
-              <li class="nav-item navbar-dropdown dropdown-user dropdown">
+              <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
-                  <div class="avatar avatar-online">
-                    <img src="{{ auth()->user()->profile_photo_path 
-                        ? Storage::disk('public')->url(auth()->user()->profile_photo_path) 
-                        : asset('assets/img/avatars/1.png') }}" 
-                         alt="Avatar" class="w-px-40 h-auto rounded-circle" />
-                  </div>
+                  <img src="{{ auth()->user()->profile_photo_path 
+                      ? Storage::disk('public')->url(auth()->user()->profile_photo_path) 
+                      : asset('assets/img/avatars/1.png') }}" 
+                       alt="Avatar" class="rounded-circle w-px-40" />
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end">
-                  <li>
-                    <a class="dropdown-item" href="#">
-                      <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0 me-3">
-                          <div class="avatar avatar-online">
-                            <img src="{{ auth()->user()->profile_photo_path 
-                                ? Storage::disk('public')->url(auth()->user()->profile_photo_path) 
-                                : asset('assets/img/avatars/1.png') }}" 
-                                 alt class="w-px-40 h-auto rounded-circle" />
-                          </div>
-                        </div>
-                        <div class="flex-grow-1">
-                          <span class="fw-medium d-block">{{ auth()->user()->name }}</span>
-                          <small class="text-muted">{{ ucwords(auth()->user()->role) }}</small>
-                        </div>
-                      </div>
-                    </a>
-                  </li>
+                  <li><a class="dropdown-item" href="#"><strong>{{ auth()->user()->name }}</strong></a></li>
                   <li><hr class="dropdown-divider"></li>
-                  <li><a class="dropdown-item" href="#">Edit Profile</a></li>
+                  <li><a class="dropdown-item" href="{{ route('profile.edit') }}">Edit Profile</a></li>
                   <li><hr class="dropdown-divider"></li>
                   <li>
                     <form method="POST" action="{{ route('logout') }}">
                       @csrf
-                      <button type="submit" class="dropdown-item">
-                        <i class="ti ti-logout me-2"></i> Logout
-                      </button>
+                      <button type="submit" class="dropdown-item">Logout</button>
                     </form>
                   </li>
                 </ul>
@@ -123,7 +98,7 @@
           </div>
         </nav>
 
-        <!-- MAIN CONTENT -->
+        <!-- CONTENT -->
         <div class="content-wrapper">
           <div class="container-xxl flex-grow-1 container-p-y">
 
@@ -131,13 +106,129 @@
               Welcome back, {{ auth()->user()->name }}! 👋
             </h4>
 
+            <!-- LIVE STATS — ONLY FOR ADMIN & STAFF -->
+            @if(auth()->user()->role === 'admin' || auth()->user()->role === 'staff')
+              <div class="row mb-6">
+                @if(auth()->user()->role === 'admin')
+                  <!-- Admin sees global stats -->
+                  <div class="col-md-3 col-sm-6 mb-4">
+                    <div class="card">
+                      <div class="card-body">
+                        <div class="d-flex align-items-center">
+                          <div class="avatar flex-shrink-0 me-3">
+                            <span class="avatar-initial rounded bg-label-primary"><i class="ti ti-bell ti-lg"></i></span>
+                          </div>
+                          <div>
+                            <h5 class="mb-0">{{ $totalNotices }}</h5>
+                            <small class="text-muted">Total Notices</small>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-3 col-sm-6 mb-4">
+                    <div class="card">
+                      <div class="card-body">
+                        <div class="d-flex align-items-center">
+                          <div class="avatar flex-shrink-0 me-3">
+                            <span class="avatar-initial rounded bg-label-success"><i class="ti ti-check ti-lg"></i></span>
+                          </div>
+                          <div>
+                            <h5 class="mb-0">{{ $approvedNotices }}</h5>
+                            <small class="text-muted">Approved</small>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-3 col-sm-6 mb-4">
+                    <div class="card">
+                      <div class="card-body">
+                        <div class="d-flex align-items-center">
+                          <div class="avatar flex-shrink-0 me-3">
+                            <span class="avatar-initial rounded bg-label-warning"><i class="ti ti-clock ti-lg"></i></span>
+                          </div>
+                          <div>
+                            <h5 class="mb-0">{{ $pendingNotices }}</h5>
+                            <small class="text-muted">Pending</small>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-3 col-sm-6 mb-4">
+                    <div class="card">
+                      <div class="card-body">
+                        <div class="d-flex align-items-center">
+                          <div class="avatar flex-shrink-0 me-3">
+                            <span class="avatar-initial rounded bg-label-info"><i class="ti ti-users ti-lg"></i></span>
+                          </div>
+                          <div>
+                            <h5 class="mb-0">{{ $totalUsers }}</h5>
+                            <small class="text-muted">Total Users</small>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                @else
+                  <!-- Staff sees personal stats -->
+                  <div class="col-md-4 col-sm-6 mb-4">
+                    <div class="card">
+                      <div class="card-body">
+                        <div class="d-flex align-items-center">
+                          <div class="avatar flex-shrink-0 me-3">
+                            <span class="avatar-initial rounded bg-label-primary"><i class="ti ti-file-text ti-lg"></i></span>
+                          </div>
+                          <div>
+                            <h5 class="mb-0">{{ $userTotalNotices }}</h5>
+                            <small class="text-muted">Your Total Notices</small>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-4 col-sm-6 mb-4">
+                    <div class="card">
+                      <div class="card-body">
+                        <div class="d-flex align-items-center">
+                          <div class="avatar flex-shrink-0 me-3">
+                            <span class="avatar-initial rounded bg-label-success"><i class="ti ti-check ti-lg"></i></span>
+                          </div>
+                          <div>
+                            <h5 class="mb-0">{{ $userApprovedNotices }}</h5>
+                            <small class="text-muted">Your Approved</small>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-4 col-sm-6 mb-4">
+                    <div class="card">
+                      <div class="card-body">
+                        <div class="d-flex align-items-center">
+                          <div class="avatar flex-shrink-0 me-3">
+                            <span class="avatar-initial rounded bg-label-warning"><i class="ti ti-clock ti-lg"></i></span>
+                          </div>
+                          <div>
+                            <h5 class="mb-0">{{ $userPendingNotices }}</h5>
+                            <small class="text-muted">Your Pending</small>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                @endif
+              </div>
+            @endif
+
+            <!-- Profile & Role Message -->
             <div class="row">
-              <!-- Profile Card -->
-              <div class="col-lg-4 col-md-6 mb-4">
+              <div class="col-lg-4 mb-4">
                 <div class="card h-100">
                   <div class="card-body text-center">
                     <img src="{{ auth()->user()->profile_photo_path 
-                        ? Storage::disk('public')->url(auth()->user()->profile_photo_path) 
+                        ? Storage::url(auth()->user()->profile_photo_path) 
                         : asset('assets/img/avatars/1.png') }}" 
                          alt="Profile" class="rounded-circle w-px-150 mb-4" />
                     <h5 class="mb-1">{{ auth()->user()->name }}</h5>
@@ -153,40 +244,22 @@
                 </div>
               </div>
 
-              <!-- Stats & Role Message -->
-              <div class="col-lg-8 col-md-6">
-                <div class="row mb-4">
-                  <div class="col-6">
-                    <div class="card">
-                      <div class="card-body text-center">
-                        <h4 class="mb-1">42</h4>
-                        <p class="text-muted">Active Notices</p>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-6">
-                    <div class="card">
-                      <div class="card-body text-center">
-                        <h4 class="mb-1">3</h4>
-                        <p class="text-muted">Your Lost Items</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="card">
+              <div class="col-lg-8">
+                <div class="card h-100">
                   <div class="card-body">
                     @if(auth()->user()->role === 'admin')
-                      <h5>Admin Dashboard</h5>
-                      <p>You have full control over notices, users, and campus content.</p>
-                      <a href="{{ route('notices.approval') }}" class="btn btn-primary">Approve Notices</a>
+                      <h5>Administrator Control Panel</h5>
+                      <p>You have full control over campus notices and user management.</p>
+                      <a href="{{ route('notices.approval') }}" class="btn btn-primary">
+                        Review Pending Notices ({{ $pendingNotices }})
+                      </a>
                     @elseif(auth()->user()->role === 'staff')
                       <h5>Staff Dashboard</h5>
-                      <p>Post official notices and help manage campus information.</p>
-                      <a href="{{ route('notices.index') }}" class="btn btn-primary">Post Notice</a>
+                      <p>You can post official campus notices. They will be reviewed by admin.</p>
+                      <a href="{{ route('notices.index') }}" class="btn btn-primary">Post New Notice</a>
                     @else
-                      <h5>Student Dashboard</h5>
-                      <p>Stay updated with campus notices and report lost items.</p>
+                      <h5>Welcome, Student!</h5>
+                      <p>Stay updated with the latest campus announcements and notices.</p>
                       <a href="{{ route('notices.index') }}" class="btn btn-primary">View Notices</a>
                     @endif
                   </div>
@@ -211,7 +284,7 @@
   <script src="{{ asset('assets/vendor/js/menu.js') }}"></script>
   <script src="{{ asset('assets/js/main.js') }}"></script>
 
-  <!-- Dark Mode Toggle Script -->
+  <!-- Dark Mode Script -->
   <script>
     document.getElementById('dark-mode-toggle').addEventListener('click', function () {
       const html = document.documentElement;

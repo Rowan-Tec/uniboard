@@ -29,4 +29,8 @@ class Notice extends Model
     {
         return $query->where('is_approved', true);
     }
+    public function scopeRejected($query)
+{
+    return $query->where('is_rejected', true);
+}
 }

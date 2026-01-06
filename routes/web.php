@@ -9,8 +9,24 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+    $user = auth()->user();
+
+    // Global stats (for admin)
+    $totalNotices = \App\Models\Notice::count();
+    $approvedNotices = \App\Models\Notice::where('is_approved', true)->count();
+    $pendingNotices = \App\Models\Notice::where('is_approved', false)->count();
+    $totalUsers = \App\Models\User::count();
+
+    // Personal stats (for staff)
+    $userTotalNotices = \App\Models\Notice::where('user_id', $user->id)->count();
+    $userApprovedNotices = \App\Models\Notice::where('user_id', $user->id)->where('is_approved', true)->count();
+    $userPendingNotices = \App\Models\Notice::where('user_id', $user->id)->where('is_approved', false)->count();
+
+    return view('dashboard', compact(
+        'totalNotices', 'approvedNotices', 'pendingNotices', 'totalUsers',
+        'userTotalNotices', 'userApprovedNotices', 'userPendingNotices'
+    ));
+})->middleware(['auth'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -27,5 +43,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/notices/{notice}/approve', [NoticeController::class, 'approve'])->name('notices.approve');
     Route::post('/notices/{notice}/reject', [NoticeController::class, 'reject'])->name('notices.reject');
 });
+
 
 require __DIR__.'/auth.php';

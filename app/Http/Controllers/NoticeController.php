@@ -11,10 +11,11 @@ class NoticeController extends Controller
 {
     public function index()
     {
-        $notices = Notice::approved()
-            ->with('user')
-            ->latest()
-            ->paginate(10);
+        $notices = Notice::where('is_approved', true)
+    ->where('is_rejected', false) // hide rejected
+    ->with('user')
+    ->latest()
+    ->paginate(10);
 
         return view('notices.index', compact('notices'));
     }
@@ -46,18 +47,24 @@ class NoticeController extends Controller
     }
 
     public function approval()
-    {
-        if (auth()->user()->role !== 'admin') {
-            abort(403);
-        }
-
-        $pendingNotices = Notice::where('is_approved', false)
-            ->with('user')
-            ->latest()
-            ->get();
-
-        return view('notices.approval', compact('pendingNotices'));
+{
+    if (auth()->user()->role !== 'admin') {
+        abort(403);
     }
+
+    $pendingNotices = Notice::where('is_approved', false)
+        ->where('is_rejected', false)
+        ->with('user')
+        ->latest()
+        ->get();
+
+    $rejectedNotices = Notice::where('is_rejected', true)
+        ->with(['user', 'approver'])
+        ->latest()
+        ->get();
+
+    return view('notices.approval', compact('pendingNotices', 'rejectedNotices'));
+}
 
     public function approve(Notice $notice)
     {
@@ -75,14 +82,24 @@ class NoticeController extends Controller
         return back()->with('success', 'Notice approved!');
     }
 
-    public function reject(Notice $notice)
-    {
-        if (auth()->user()->role !== 'admin') {
-            abort(403);
-        }
-
-        $notice->delete();
-
-        return back()->with('success', 'Notice rejected.');
+   public function reject(Request $request, Notice $notice)
+{
+    if (auth()->user()->role !== 'admin') {
+        abort(403);
     }
+
+    $request->validate([
+        'reject_reason' => 'required|string|max:500',
+    ]);
+
+    $notice->update([
+        'is_rejected' => true,
+        'rejected_by' => auth()->id(),
+        'rejected_at' => now(),
+        'reject_reason' => $request->reject_reason,
+    ]);
+
+    return back()->with('success', 'Notice rejected with reason.');
+}
+    
 }

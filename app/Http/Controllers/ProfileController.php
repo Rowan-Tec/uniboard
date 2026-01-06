@@ -14,27 +14,40 @@ class ProfileController extends Controller
     /**
      * Display the user's profile form.
      */
-    public function edit(Request $request): View
+    public function edit()
     {
-        return view('profile.edit', [
-            'user' => $request->user(),
-        ]);
+        return view('profile.edit');
     }
 
     /**
      * Update the user's profile information.
      */
-    public function update(ProfileUpdateRequest $request): RedirectResponse
+    public function update(Request $request)
     {
-        $request->user()->fill($request->validated());
+        $user = Auth::user();
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        $request->validate([
+            'name'          => 'required|string|max:255',
+            'id_number'     => 'required|string|max:50|unique:users,id_number,' . $user->id,
+            'department'    => 'required|in:cse,eee,civil,business,law,staff',
+            'year'          => 'required|in:1st,2nd,3rd,4th,staff',
+            'gender'        => 'required|in:male,female,other',
+            'phone'         => 'nullable|string|max:20',
+            'profile_photo' => 'nullable|image|mimes:jpg,jpeg,png,gif,webp|max:2048',
+        ]);
+
+        $data = $request->only(['name', 'id_number', 'department', 'year', 'gender', 'phone']);
+
+        if ($request->hasFile('profile_photo')) {
+            if ($user->profile_photo_path) {
+                Storage::disk('public')->delete($user->profile_photo_path);
+            }
+            $data['profile_photo_path'] = $request->file('profile_photo')->store('profile-photos', 'public');
         }
 
-        $request->user()->save();
+        $user->update($data);
 
-        return Redirect::route('profile.edit')->with('status', 'profile-updated');
+        return back()->with('success', 'Profile updated successfully!');
     }
 
     /**
