@@ -37,6 +37,12 @@
             </a>
           </li>
           <li class="menu-item">
+            <a href="{{ route('lostfound.index') }}" class="menu-link">
+              <i class="menu-icon tf-icons ti ti-search"></i>
+              <div>Lost & Found</div>
+            </a>
+          </li>
+          <li class="menu-item">
             <a href="{{ route('profile.edit') }}" class="menu-link">
               <i class="menu-icon tf-icons ti ti-user-edit"></i>
               <div>Edit Profile</div>
@@ -48,7 +54,7 @@
             <li class="menu-item">
               <a href="{{ route('notices.approval') }}" class="menu-link">
                 <i class="menu-icon tf-icons ti ti-shield-check"></i>
-                <div>Approve Notices ({{ $pendingNotices }})</div>
+                <div>Approve Notices ({{ $pendingNotices ?? 0 }})</div>
               </a>
             </li>
           @endif
@@ -77,7 +83,7 @@
               <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
                   <img src="{{ auth()->user()->profile_photo_path 
-                      ? Storage::disk('public')->url(auth()->user()->profile_photo_path) 
+                      ? asset('storage/' . auth()->user()->profile_photo_path) 
                       : asset('assets/img/avatars/1.png') }}" 
                        alt="Avatar" class="rounded-circle w-px-40" />
                 </a>
@@ -109,8 +115,9 @@
             <!-- LIVE STATS — ONLY FOR ADMIN & STAFF -->
             @if(auth()->user()->role === 'admin' || auth()->user()->role === 'staff')
               <div class="row mb-6">
+
                 @if(auth()->user()->role === 'admin')
-                  <!-- Admin sees global stats -->
+                  <!-- Admin Global Stats -->
                   <div class="col-md-3 col-sm-6 mb-4">
                     <div class="card">
                       <div class="card-body">
@@ -119,8 +126,8 @@
                             <span class="avatar-initial rounded bg-label-primary"><i class="ti ti-bell ti-lg"></i></span>
                           </div>
                           <div>
-                            <h5 class="mb-0">{{ $totalNotices }}</h5>
-                            <small class="text-muted">Total Notices</small>
+                            <h5 class="mb-0">{{ $totalNotices ?? 0 }}</h5>
+                            <small>Total Notices</small>
                           </div>
                         </div>
                       </div>
@@ -134,8 +141,8 @@
                             <span class="avatar-initial rounded bg-label-success"><i class="ti ti-check ti-lg"></i></span>
                           </div>
                           <div>
-                            <h5 class="mb-0">{{ $approvedNotices }}</h5>
-                            <small class="text-muted">Approved</small>
+                            <h5 class="mb-0">{{ $approvedNotices ?? 0 }}</h5>
+                            <small>Approved Notices</small>
                           </div>
                         </div>
                       </div>
@@ -146,11 +153,11 @@
                       <div class="card-body">
                         <div class="d-flex align-items-center">
                           <div class="avatar flex-shrink-0 me-3">
-                            <span class="avatar-initial rounded bg-label-warning"><i class="ti ti-clock ti-lg"></i></span>
+                            <span class="avatar-initial rounded bg-label-danger"><i class="ti ti-package-off ti-lg"></i></span>
                           </div>
                           <div>
-                            <h5 class="mb-0">{{ $pendingNotices }}</h5>
-                            <small class="text-muted">Pending</small>
+                            <h5 class="mb-0">{{ $totalLostItems ?? 0 }}</h5>
+                            <small>Lost Items</small>
                           </div>
                         </div>
                       </div>
@@ -161,18 +168,18 @@
                       <div class="card-body">
                         <div class="d-flex align-items-center">
                           <div class="avatar flex-shrink-0 me-3">
-                            <span class="avatar-initial rounded bg-label-info"><i class="ti ti-users ti-lg"></i></span>
+                            <span class="avatar-initial rounded bg-label-info"><i class="ti ti-package ti-lg"></i></span>
                           </div>
                           <div>
-                            <h5 class="mb-0">{{ $totalUsers }}</h5>
-                            <small class="text-muted">Total Users</small>
+                            <h5 class="mb-0">{{ $totalFoundItems ?? 0 }}</h5>
+                            <small>Found Items</small>
                           </div>
                         </div>
                       </div>
                     </div>
                   </div>
                 @else
-                  <!-- Staff sees personal stats -->
+                  <!-- Staff Personal Stats -->
                   <div class="col-md-4 col-sm-6 mb-4">
                     <div class="card">
                       <div class="card-body">
@@ -181,8 +188,8 @@
                             <span class="avatar-initial rounded bg-label-primary"><i class="ti ti-file-text ti-lg"></i></span>
                           </div>
                           <div>
-                            <h5 class="mb-0">{{ $userTotalNotices }}</h5>
-                            <small class="text-muted">Your Total Notices</small>
+                            <h5 class="mb-0">{{ $userTotalNotices ?? 0 }}</h5>
+                            <small>Your Notices</small>
                           </div>
                         </div>
                       </div>
@@ -193,11 +200,11 @@
                       <div class="card-body">
                         <div class="d-flex align-items-center">
                           <div class="avatar flex-shrink-0 me-3">
-                            <span class="avatar-initial rounded bg-label-success"><i class="ti ti-check ti-lg"></i></span>
+                            <span class="avatar-initial rounded bg-label-danger"><i class="ti ti-package-off ti-lg"></i></span>
                           </div>
                           <div>
-                            <h5 class="mb-0">{{ $userApprovedNotices }}</h5>
-                            <small class="text-muted">Your Approved</small>
+                            <h5 class="mb-0">{{ $userLostItems ?? 0 }}</h5>
+                            <small>Your Lost Reports</small>
                           </div>
                         </div>
                       </div>
@@ -208,11 +215,11 @@
                       <div class="card-body">
                         <div class="d-flex align-items-center">
                           <div class="avatar flex-shrink-0 me-3">
-                            <span class="avatar-initial rounded bg-label-warning"><i class="ti ti-clock ti-lg"></i></span>
+                            <span class="avatar-initial rounded bg-label-info"><i class="ti ti-package ti-lg"></i></span>
                           </div>
                           <div>
-                            <h5 class="mb-0">{{ $userPendingNotices }}</h5>
-                            <small class="text-muted">Your Pending</small>
+                            <h5 class="mb-0">{{ $userFoundItems ?? 0 }}</h5>
+                            <small>Your Found Reports</small>
                           </div>
                         </div>
                       </div>
@@ -228,7 +235,7 @@
                 <div class="card h-100">
                   <div class="card-body text-center">
                     <img src="{{ auth()->user()->profile_photo_path 
-                        ? Storage::url(auth()->user()->profile_photo_path) 
+                        ? asset('storage/' . auth()->user()->profile_photo_path) 
                         : asset('assets/img/avatars/1.png') }}" 
                          alt="Profile" class="rounded-circle w-px-150 mb-4" />
                     <h5 class="mb-1">{{ auth()->user()->name }}</h5>
@@ -248,19 +255,20 @@
                 <div class="card h-100">
                   <div class="card-body">
                     @if(auth()->user()->role === 'admin')
-                      <h5>Administrator Control Panel</h5>
-                      <p>You have full control over campus notices and user management.</p>
-                      <a href="{{ route('notices.approval') }}" class="btn btn-primary">
-                        Review Pending Notices ({{ $pendingNotices }})
-                      </a>
+                      <h5>Administrator Dashboard</h5>
+                      <p>You have full control over campus content.</p>
+                      <div class="d-flex gap-3">
+                        <a href="{{ route('notices.approval') }}" class="btn btn-primary">Approve Notices</a>
+                        <a href="{{ route('lostfound.index') }}" class="btn btn-outline-primary">Manage Lost & Found</a>
+                      </div>
                     @elseif(auth()->user()->role === 'staff')
                       <h5>Staff Dashboard</h5>
-                      <p>You can post official campus notices. They will be reviewed by admin.</p>
-                      <a href="{{ route('notices.index') }}" class="btn btn-primary">Post New Notice</a>
+                      <p>Post notices and report found items.</p>
+                      <a href="{{ route('lostfound.index') }}" class="btn btn-primary">Report Lost/Found Item</a>
                     @else
                       <h5>Welcome, Student!</h5>
-                      <p>Stay updated with the latest campus announcements and notices.</p>
-                      <a href="{{ route('notices.index') }}" class="btn btn-primary">View Notices</a>
+                      <p>Report lost items and check found items.</p>
+                      <a href="{{ route('lostfound.index') }}" class="btn btn-primary">Lost & Found</a>
                     @endif
                   </div>
                 </div>

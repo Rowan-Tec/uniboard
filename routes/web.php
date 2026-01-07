@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\NoticeController;
+use App\Http\Controllers\LostFoundController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -11,20 +12,26 @@ Route::get('/', function () {
 Route::get('/dashboard', function () {
     $user = auth()->user();
 
-    // Global stats (for admin)
+    // Notices Stats
     $totalNotices = \App\Models\Notice::count();
     $approvedNotices = \App\Models\Notice::where('is_approved', true)->count();
     $pendingNotices = \App\Models\Notice::where('is_approved', false)->count();
-    $totalUsers = \App\Models\User::count();
 
-    // Personal stats (for staff)
+    // Lost & Found Stats (Global)
+    $totalLostItems = \App\Models\LostFoundItem::lost()->count();
+    $totalFoundItems = \App\Models\LostFoundItem::found()->count();
+
+    // Personal Lost & Found (for staff)
+    $userLostItems = \App\Models\LostFoundItem::where('user_id', $user->id)->where('type', 'lost')->count();
+    $userFoundItems = \App\Models\LostFoundItem::where('user_id', $user->id)->where('type', 'found')->count();
+
+    // Personal Notices (for staff)
     $userTotalNotices = \App\Models\Notice::where('user_id', $user->id)->count();
-    $userApprovedNotices = \App\Models\Notice::where('user_id', $user->id)->where('is_approved', true)->count();
-    $userPendingNotices = \App\Models\Notice::where('user_id', $user->id)->where('is_approved', false)->count();
 
     return view('dashboard', compact(
-        'totalNotices', 'approvedNotices', 'pendingNotices', 'totalUsers',
-        'userTotalNotices', 'userApprovedNotices', 'userPendingNotices'
+        'totalNotices', 'approvedNotices', 'pendingNotices',
+        'totalLostItems', 'totalFoundItems',
+        'userTotalNotices', 'userLostItems', 'userFoundItems'
     ));
 })->middleware(['auth'])->name('dashboard');
 
@@ -44,5 +51,12 @@ Route::middleware('auth')->group(function () {
     Route::post('/notices/{notice}/reject', [NoticeController::class, 'reject'])->name('notices.reject');
 });
 
+
+Route::middleware('auth')->group(function () {
+    Route::get('/lost-found', [LostFoundController::class, 'index'])->name('lostfound.index');
+    Route::post('/lost-found', [LostFoundController::class, 'store'])->name('lostfound.store');
+    Route::get('/lost-found/{item}', [LostFoundController::class, 'show'])->name('lostfound.show');
+    Route::patch('/lost-found/{item}/resolve', [LostFoundController::class, 'resolve'])->name('lostfound.resolve');
+});
 
 require __DIR__.'/auth.php';
