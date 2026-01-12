@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\NoticeController;
 use App\Http\Controllers\LostFoundController;
+use App\Http\Controllers\MessageController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -57,6 +58,13 @@ Route::middleware('auth')->group(function () {
     Route::post('/lost-found', [LostFoundController::class, 'store'])->name('lostfound.store');
     Route::get('/lost-found/{item}', [LostFoundController::class, 'show'])->name('lostfound.show');
     Route::patch('/lost-found/{item}/resolve', [LostFoundController::class, 'resolve'])->name('lostfound.resolve');
+});
+
+
+Route::middleware('auth')->group(function () {
+    Route::get('/messages', [MessageController::class, 'inbox'])->name('messages.inbox');
+    Route::get('/messages/{user}', [MessageController::class, 'show'])->name('messages.show');
+    Route::post('/messages/{user}', [MessageController::class, 'send'])->name('messages.send');
 });
 
 require __DIR__.'/auth.php';

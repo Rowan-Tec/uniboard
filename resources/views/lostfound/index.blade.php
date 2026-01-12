@@ -100,16 +100,23 @@
               </button>
             </div>
 
+            @if(session('success'))
+              <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+              </div>
+            @endif
+
             <!-- Tabs -->
             <ul class="nav nav-tabs mb-6" role="tablist">
               <li class="nav-item">
                 <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#lost-tab">
-                  <i class="ti ti-package me-1"></i> Lost Items
+                  <i class="ti ti-package-off me-1"></i> Lost Items ({{ $lostItems->count() }})
                 </button>
               </li>
               <li class="nav-item">
                 <button class="nav-link" data-bs-toggle="tab" data-bs-target="#found-tab">
-                  <i class="ti ti-search me-1"></i> Found Items
+                  <i class="ti ti-package me-1"></i> Found Items ({{ $foundItems->count() }})
                 </button>
               </li>
             </ul>
@@ -122,24 +129,32 @@
                     <div class="col-md-6 mb-4">
                       <div class="card h-100">
                         <div class="card-body">
-                          <h5 class="card-title">{{ $item->title }}</h5>
-                          <p class="text-muted small mb-2">
-                            Reported by <strong>{{ $item->user->name }}</strong> • {{ $item->date_lost_found->diffForHumans() }}
-                          </p>
-                          <p>{{ Str::limit($item->description, 100) }}</p>
-                          <p><strong>Location:</strong> {{ $item->location }}</p>
-
-                          @if($item->images)
-                            <div class="row g-2 mb-3">
-                              @foreach(json_decode($item->images, true) as $image)
-                                <div class="col-4">
-                                  <img src="{{ asset('storage/' . $image) }}" class="img-fluid rounded" alt="Item photo" />
-                                </div>
-                              @endforeach
+                          <div class="d-flex align-items-start">
+                            <div class="badge bg-label-danger rounded p-2 me-3">
+                              <i class="ti ti-package-off ti-lg"></i>
                             </div>
-                          @endif
+                            <div class="flex-grow-1">
+                              <h5 class="card-title mb-1">{{ $item->title }}</h5>
+                              <p class="text-muted small mb-2">
+                                Reported by {{ $item->user->name }} • {{ $item->created_at->diffForHumans() }}
+                              </p>
+                              <p class="card-text">{{ Str::limit($item->description, 150) }}</p>
+                              <p><strong>Location:</strong> {{ $item->location }}</p>
 
-                          <a href="{{ route('lostfound.show', $item) }}" class="btn btn-sm btn-outline-primary">View Details</a>
+                              <!-- Images (Fixed - no json_decode) -->
+                              @if($item->images && count($item->images) > 0)
+                                <div class="row g-2 mb-3">
+                                  @foreach($item->images as $image)
+                                    <div class="col-4">
+                                      <img src="{{ asset('storage/' . $image) }}" class="img-fluid rounded" alt="Item photo" />
+                                    </div>
+                                  @endforeach
+                                </div>
+                              @endif
+
+                              <a href="{{ route('lostfound.show', $item) }}" class="btn btn-sm btn-outline-primary">View Details</a>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -162,24 +177,32 @@
                     <div class="col-md-6 mb-4">
                       <div class="card h-100">
                         <div class="card-body">
-                          <h5 class="card-title">{{ $item->title }}</h5>
-                          <p class="text-muted small mb-2">
-                            Found by <strong>{{ $item->user->name }}</strong> • {{ $item->date_lost_found->diffForHumans() }}
-                          </p>
-                          <p>{{ Str::limit($item->description, 100) }}</p>
-                          <p><strong>Location:</strong> {{ $item->location }}</p>
-
-                          @if($item->images)
-                            <div class="row g-2 mb-3">
-                              @foreach(json_decode($item->images, true) as $image)
-                                <div class="col-4">
-                                  <img src="{{ asset('storage/' . $image) }}" class="img-fluid rounded" alt="Item photo" />
-                                </div>
-                              @endforeach
+                          <div class="d-flex align-items-start">
+                            <div class="badge bg-label-success rounded p-2 me-3">
+                              <i class="ti ti-package ti-lg"></i>
                             </div>
-                          @endif
+                            <div class="flex-grow-1">
+                              <h5 class="card-title mb-1">{{ $item->title }}</h5>
+                              <p class="text-muted small mb-2">
+                                Reported by {{ $item->user->name }} • {{ $item->created_at->diffForHumans() }}
+                              </p>
+                              <p class="card-text">{{ Str::limit($item->description, 150) }}</p>
+                              <p><strong>Location:</strong> {{ $item->location }}</p>
 
-                          <a href="{{ route('lostfound.show', $item) }}" class="btn btn-sm btn-outline-primary">View Details</a>
+                              <!-- Images (Fixed - no json_decode) -->
+                              @if($item->images && count($item->images) > 0)
+                                <div class="row g-2 mb-3">
+                                  @foreach($item->images as $image)
+                                    <div class="col-4">
+                                      <img src="{{ asset('storage/' . $image) }}" class="img-fluid rounded" alt="Item photo" />
+                                    </div>
+                                  @endforeach
+                                </div>
+                              @endif
+
+                              <a href="{{ route('lostfound.show', $item) }}" class="btn btn-sm btn-outline-primary">View Details</a>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -242,7 +265,7 @@
 
               <div class="mb-3">
                 <label class="form-label">Upload Photos (up to 4)</label>
-                <input type="file" name="images[]" class="form-control" multiple accept="image/*" max="4" />
+                <input type="file" name="images[]" class="form-control" multiple accept="image/*" />
                 <small class="text-muted">Hold Ctrl/Cmd to select multiple</small>
               </div>
             </div>
