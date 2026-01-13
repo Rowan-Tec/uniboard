@@ -3,79 +3,121 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="csrf-token" content="{{ csrf_token() }}" />
+
   <title>Chat with {{ $user->name }} | UniBoard</title>
 
-  <!-- Vuexy CSS -->
   <link rel="stylesheet" href="{{ asset('assets/vendor/css/core.css') }}" />
   <link rel="stylesheet" href="{{ asset('assets/css/demo.css') }}" />
   <link rel="stylesheet" href="{{ asset('assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css') }}" />
+
+  <style>
+    .chat-body {
+      background: #e5ddd5 url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png') repeat;
+      background-size: 100% auto;
+      padding: 10px;
+    }
+    .message {
+      margin-bottom: 12px;
+      max-width: 75%;
+    }
+    .message-bubble {
+      position: relative;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 14.2px;
+      line-height: 1.35;
+    }
+    .incoming .message-bubble {
+      background: #fff;
+      border-bottom-left-radius: 0;
+    }
+    .outgoing .message-bubble {
+      background: #dcf8c6;
+      border-bottom-right-radius: 0;
+    }
+    .message-meta {
+      font-size: 11px;
+      color: #555;
+      margin-top: 3px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .read-status {
+      color: #4fc3f7;
+    }
+    #typingIndicator {
+      padding: 12px 16px;
+      font-style: italic;
+      color: #555;
+    }
+  </style>
 </head>
 <body>
 
   <div class="layout-wrapper layout-content-navbar">
     <div class="layout-container">
 
-      <!-- SIDEBAR (same as other pages) -->
+      <!-- Sidebar -->
       <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
-        <div class="app-brand demo">
-          <a href="{{ route('dashboard') }}" class="app-brand-link">
-            <span class="app-brand-text demo menu-text fw-bold">UniBoard</span>
-          </a>
-        </div>
-        <div class="menu-inner-shadow"></div>
-        <ul class="menu-inner py-1">
-          <li class="menu-item">
-            <a href="{{ route('dashboard') }}" class="menu-link">
-              <i class="menu-icon tf-icons ti ti-smart-home"></i>
-              <div>Dashboard</div>
-            </a>
-          </li>
-          <li class="menu-item">
-            <a href="{{ route('messages.inbox') }}" class="menu-link">
-              <i class="menu-icon tf-icons ti ti-messages"></i>
-              <div>Messages</div>
-            </a>
-          </li>
-          <!-- Other links -->
-        </ul>
+        <!-- Your sidebar code here -->
       </aside>
 
       <div class="layout-page">
 
-        <!-- NAVBAR -->
+        <!-- Navbar -->
         <nav class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-info">
-          <!-- Paste your navbar code -->
+          <!-- Your navbar code here -->
         </nav>
 
-        <!-- CONTENT -->
+        <!-- Content -->
         <div class="content-wrapper">
           <div class="container-xxl flex-grow-1 container-p-y">
             <div class="row">
               <div class="col-lg-8 mx-auto">
                 <div class="card">
-                  <div class="card-header d-flex align-items-center justify-content-between">
+
+                  <!-- Header -->
+                  <div class="card-header d-flex align-items-center justify-content-between border-bottom">
                     <div class="d-flex align-items-center">
-                      <img src="{{ $user->profile_photo_path ? asset('storage/' . $user->profile_photo_path) : asset('assets/img/avatars/1.png') }}" class="rounded-circle w-px-50 me-3" />
-                      <h5 class="mb-0">{{ $user->name }}</h5>
+                      <img src="{{ $user->profile_photo_path ? asset('storage/' . $user->profile_photo_path) : asset('assets/img/avatars/1.png') }}" 
+                           class="rounded-circle w-px-48 me-3" alt="{{ $user->name }}" />
+                      <div>
+                        <h5 class="mb-0">{{ $user->name }}</h5>
+                        <small class="text-success">Active now</small>
+                      </div>
                     </div>
-                    <a href="{{ route('messages.inbox') }}" class="btn btn-outline-secondary btn-sm">Back to Inbox</a>
+                    <a href="{{ route('messages.inbox') }}" class="btn btn-sm btn-outline-secondary">
+                      <i class="ti ti-arrow-left me-1"></i> Back to Inbox
+                    </a>
                   </div>
 
-                  <!-- CHAT BODY - THIS IS WHERE MESSAGES LOAD -->
-                  <div class="card-body chat-container" id="chatBody" style="height: 500px; overflow-y: auto; padding: 20px;">
-                    <div id="messagesList">
-                      <!-- Messages will be loaded here via JS -->
+                  <!-- Chat Body -->
+                  <div class="card-body chat-body p-0" id="chatBody" style="height: 65vh; overflow-y: auto;">
+                    <div class="p-4 d-flex flex-column" id="messagesList">
+                      <!-- Messages appear here -->
                     </div>
-                    <div id="typingIndicator" class="text-muted small d-none">Typing...</div>
+
+                    <!-- Typing Indicator -->
+                    <div id="typingIndicator" class="p-4 text-muted small d-none">
+                      <div class="typing-dots d-inline-block me-2">
+                        <span></span><span></span><span></span>
+                      </div>
+                      {{ $user->name }} is typing...
+                    </div>
                   </div>
 
-                  <!-- Message Input -->
-                  <div class="card-footer">
+                  <!-- Input -->
+                  <div class="card-footer border-top p-3 bg-white">
                     <form id="messageForm">
-                      @csrf
                       <div class="input-group">
-                        <textarea name="message" id="messageInput" class="form-control" rows="2" placeholder="Type your message..." required></textarea>
-                        <button type="submit" class="btn btn-primary">Send</button>
+                        <textarea id="messageInput" class="form-control rounded-pill px-4 py-3" 
+                                  rows="1" placeholder="Type a message..." required 
+                                  style="resize:none; min-height:48px;"></textarea>
+                        <button type="submit" class="btn btn-primary rounded-pill px-4">
+                          <i class="ti ti-send"></i>
+                        </button>
                       </div>
                     </form>
                   </div>
@@ -98,56 +140,75 @@
   <script src="{{ asset('assets/vendor/js/menu.js') }}"></script>
   <script src="{{ asset('assets/js/main.js') }}"></script>
 
-  <!-- Real-time Chat Script -->
+  <!-- Chat Logic -->
   <script>
-    const userId = {{ $user->id }};
+    const receiverId = {{ $user->id }};
     const currentUserId = {{ Auth::id() }};
-    let lastMessageId = 0;
+    const typingIndicator = document.getElementById('typingIndicator');
+
+    // Load initial messages
+    loadMessages();
+
+    // Poll fallback every 5 seconds
+    setInterval(loadMessages, 5000);
 
     function loadMessages() {
-      fetch(`/messages/${userId}/poll`)
+      fetch(`/messages/${receiverId}/poll`)
         .then(response => response.json())
         .then(data => {
-          const messagesList = document.getElementById('messagesList');
-          messagesList.innerHTML = ''; // Reload all for simplicity
+          const list = document.getElementById('messagesList');
+          list.innerHTML = '';
 
           data.messages.forEach(msg => {
             const isMine = msg.sender_id === currentUserId;
-            const bubbleClass = isMine ? 'bg-primary text-white ms-auto' : 'bg-light';
-            const alignClass = isMine ? 'justify-content-end' : 'justify-content-start';
+            const bubbleClass = isMine ? 'outgoing' : 'incoming';
+            const read = isMine && msg.is_read ? '✓✓' : '';
 
-            const messageHtml = `
-              <div class="d-flex ${alignClass} mb-3">
-                <div class="p-3 rounded ${bubbleClass}" style="max-width: 70%;">
+            const html = `
+              <div class="message d-flex ${isMine ? 'justify-content-end' : 'justify-content-start'}">
+                <div class="message-bubble ${bubbleClass}">
                   <p class="mb-1">${msg.message.replace(/\n/g, '<br>')}</p>
-                  <small class="opacity-75">${msg.created_at}</small>
-                  ${isMine && msg.is_read ? '<small class="d-block text-end">✓✓ Read</small>' : ''}
+                  <div class="message-meta">
+                    <span>${msg.created_at}</span>
+                    <span class="read-status">${read}</span>
+                  </div>
                 </div>
               </div>
             `;
-            messagesList.innerHTML += messageHtml;
+            list.insertAdjacentHTML('beforeend', html);
           });
 
-          // Auto-scroll to bottom
-          messagesList.scrollTop = messagesList.scrollHeight;
+          list.scrollTop = list.scrollHeight;
         })
-        .catch(error => console.error('Error loading messages:', error));
+        .catch(err => console.error('Poll error:', err));
     }
 
-    // Poll every 5 seconds
-    setInterval(loadMessages, 5000);
-
-    // Initial load
-    loadMessages();
-
-    // Send message
+    // Send message - appears instantly on same page for sender
     document.getElementById('messageForm').addEventListener('submit', function(e) {
       e.preventDefault();
-      const messageInput = document.getElementById('messageInput');
-      const message = messageInput.value.trim();
+
+      const input = document.getElementById('messageInput');
+      const message = input.value.trim();
+
       if (!message) return;
 
-      fetch(`/messages/${userId}`, {
+      // Show message immediately (optimistic UI)
+      const list = document.getElementById('messagesList');
+      const html = `
+        <div class="message d-flex justify-content-end">
+          <div class="message-bubble outgoing">
+            <p class="mb-1">${message.replace(/\n/g, '<br>')}</p>
+            <div class="message-meta">
+              <span>just now</span>
+            </div>
+          </div>
+        </div>
+      `;
+      list.insertAdjacentHTML('beforeend', html);
+      list.scrollTop = list.scrollHeight;
+
+      // Send to server
+      fetch(`/messages/${receiverId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -158,17 +219,60 @@
       .then(response => response.json())
       .then(data => {
         if (data.success) {
-          messageInput.value = '';
-          loadMessages();
+          input.value = '';
+        } else {
+          alert('Failed to send');
         }
       })
-      .catch(error => console.error('Error sending message:', error));
+      .catch(err => console.error('Send error:', err));
     });
 
-    // Optional: Typing indicator (client-side)
+    // Listen for new messages from other user (real-time)
+    Echo.private(`chat.${currentUserId}`)
+        .listen('MessageSent', (e) => {
+          const msg = e.message;
+          const isMine = msg.sender_id === currentUserId;
+          const bubbleClass = isMine ? 'outgoing' : 'incoming';
+          const read = isMine && msg.is_read ? '✓✓' : '';
+
+          const html = `
+            <div class="message d-flex ${isMine ? 'justify-content-end' : 'justify-content-start'}">
+              <div class="message-bubble ${bubbleClass}">
+                <p class="mb-1">${msg.message.replace(/\n/g, '<br>')}</p>
+                <div class="message-meta">
+                  <span>just now</span>
+                  <span class="read-status">${read}</span>
+                </div>
+              </div>
+            </div>
+          `;
+          document.getElementById('messagesList').insertAdjacentHTML('beforeend', html);
+          document.getElementById('messagesList').scrollTop = document.getElementById('messagesList').scrollHeight;
+        });
+
+    // Typing indicator
+    let typingTimer;
     document.getElementById('messageInput').addEventListener('input', function() {
-      // You can add server-side typing later
+      clearTimeout(typingTimer);
+      fetch(`/messages/${receiverId}/typing`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        }
+      });
+
+      typingTimer = setTimeout(() => {}, 2000);
     });
+
+    Echo.private(`chat.${currentUserId}`)
+        .listen('UserTyping', (e) => {
+          if (e.sender_id === receiverId) {
+            typingIndicator.classList.remove('d-none');
+            clearTimeout(window.typingHide);
+            window.typingHide = setTimeout(() => typingIndicator.classList.add('d-none'), 3000);
+          }
+        });
   </script>
 </body>
 </html>

@@ -66,5 +66,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/messages/{user}', [MessageController::class, 'show'])->name('messages.show');
     Route::post('/messages/{user}', [MessageController::class, 'send'])->name('messages.send');
 });
+Route::post('/messages/{user}/typing', [MessageController::class, 'typing'])->name('messages.typing');
 
 require __DIR__.'/auth.php';
