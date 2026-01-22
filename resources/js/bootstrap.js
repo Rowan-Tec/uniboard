@@ -1,5 +1,7 @@
 import Echo from 'laravel-echo';
-import Reverb from '@reverbjs/laravel-echo';
+import Pusher from 'pusher-js';
+
+window.Pusher = Pusher;
 
 window.Echo = new Echo({
     broadcaster: 'reverb',
@@ -9,4 +11,12 @@ window.Echo = new Echo({
     wssPort: import.meta.env.VITE_REVERB_PORT ?? 443,
     forceTLS: (import.meta.env.VITE_REVERB_SCHEME ?? 'https') === 'https',
     enabledTransports: ['ws', 'wss'],
+    disableStats: true,
 });
+/**
+ * Echo exposes an expressive API for subscribing to channels and listening
+ * for events that are broadcast by Laravel. Echo and event broadcasting
+ * allow your team to quickly build robust real-time web applications.
+ */
+
+import './echo';

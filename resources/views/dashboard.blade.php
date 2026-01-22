@@ -65,51 +65,75 @@
 
         <!-- NAVBAR -->
         <nav class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-info">
-          <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
-            <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)">
-              <i class="ti ti-menu-2 ti-lg"></i>
-            </a>
-          </div>
+  <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
+    <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)">
+      <i class="ti ti-menu-2 ti-lg"></i>
+    </a>
+  </div>
 
-          <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
-            <ul class="navbar-nav flex-row align-items-center ms-auto">
-              <li class="nav-item me-3">
-                <a href="javascript:void(0);" id="dark-mode-toggle" class="nav-link px-3 text-white">
-                  <i class="ti ti-moon ti-lg me-1" id="moon-icon"></i>
-                  <i class="ti ti-sun ti-lg me-1 d-none" id="sun-icon"></i>
-                  <span id="mode-text">Dark Mode</span>
-                </a>
-              </li>
-              <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
-                  <img src="{{ auth()->user()->profile_photo_path 
-                      ? asset('storage/' . auth()->user()->profile_photo_path) 
-                      : asset('assets/img/avatars/1.png') }}" 
-                       alt="Avatar" class="rounded-circle w-px-40" />
-                </a>
-                <ul class="dropdown-menu dropdown-menu-end">
-                  <li><a class="dropdown-item" href="#"><strong>{{ auth()->user()->name }}</strong></a></li>
-                  <li><hr class="dropdown-divider"></li>
-                  <li><a class="dropdown-item" href="{{ route('profile.edit') }}">Edit Profile</a></li>
-                  <li><hr class="dropdown-divider"></li>
-                  <li>
-                    <form method="POST" action="{{ route('logout') }}">
-                      @csrf
-                      <button type="submit" class="dropdown-item">Logout</button>
-                    </form>
-                  </li>
-                </ul>
-              </li>
-            </ul>
+  <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
+    <ul class="navbar-nav flex-row align-items-center ms-auto">
+
+      <!-- Dark Mode Toggle -->
+      <li class="nav-item me-3">
+        <a href="javascript:void(0);" id="dark-mode-toggle" class="nav-link px-3 text-white">
+          <i class="ti ti-moon ti-lg me-1" id="moon-icon"></i>
+          <i class="ti ti-sun ti-lg me-1 d-none" id="sun-icon"></i>
+          <span id="mode-text">Dark Mode</span>
+        </a>
+      </li>
+
+      <!-- Notifications Dropdown -->
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
+          <i class="ti ti-bell ti-lg"></i>
+          <span class="badge bg-danger rounded-pill badge-notification" id="unreadCount">0</span>
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end p-0" style="width: 320px;">
+          <li class="dropdown-header border-bottom py-3">
+            <h6 class="mb-0">Notifications</h6>
+            <small id="unreadText">You have <span id="unreadCountText">0</span> unread</small>
+          </li>
+          <div class="notification-list p-2" id="notificationList" style="max-height: 300px; overflow-y: auto;">
+            <!-- Notifications loaded here via JS -->
+            <div class="text-center py-4 text-muted">
+              <i class="ti ti-loader ti-spin me-2"></i> Loading...
+            </div>
           </div>
-        </nav>
+          <li class="dropdown-footer border-top text-center py-3">
+            <a href="{{ route('notifications.index') }}" class="btn btn-sm btn-outline-primary w-100">
+              View All Notifications
+            </a>
+          </li>
+        </ul>
+      </li>
+
+      <!-- User Dropdown -->
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
+          <img src="http://127.0.0.1:8000/assets/img/avatars/1.png" alt="" class="rounded-circle w-px-40">
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li><a class="dropdown-item" href="#"><strong>Admin</strong></a></li>
+          <li><hr class="dropdown-divider"></li>
+          <li>
+            <form method="POST" action="http://127.0.0.1:8000/logout">
+              @csrf
+              <button type="submit" class="dropdown-item">Logout</button>
+            </form>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+</nav>
 
         <!-- CONTENT -->
         <div class="content-wrapper">
           <div class="container-xxl flex-grow-1 container-p-y">
 
             <h4 class="fw-bold py-3 mb-4">
-              Welcome back, {{ auth()->user()->name }}! 👋
+              Welcome back, {{ auth()->user()->name }}
             </h4>
 
             <!-- LIVE STATS — ONLY FOR ADMIN & STAFF -->
@@ -274,6 +298,175 @@
                 </div>
               </div>
             </div>
+
+          <!-- ADMIN-ONLY USER MANAGEMENT TABLE -->
+           @if(session('success'))
+    <div class="alert alert-success">
+        {{ session('success') }}
+    </div>
+@endif
+
+@if(auth()->user()->role === 'admin' && isset($users))
+  <div class="card mt-6">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">Manage Users</h5>
+      <form method="GET" action="{{ route('dashboard') }}" class="d-flex">
+        <input type="text" name="search" value="{{ request('search') }}" class="form-control form-control-sm me-2" placeholder="Search by name..." />
+        <button type="submit" class="btn btn-sm btn-primary">Search</button>
+      </form>
+      <small class="text-muted ms-3">Total: {{ $users->total() }}</small>
+    </div>
+
+    <div class="card-body">
+      @if ($users->isEmpty())
+        <div class="text-center py-5 text-muted">
+          <i class="ti ti-users ti-4x mb-3"></i>
+          <p>No users found.</p>
+        </div>
+      @else
+        <div class="table-responsive">
+          <table class="table table-hover table-borderless">
+            <thead class="table-light">
+              <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>ID Number</th>
+                <th>Role</th>
+                <th>Department</th>
+                <th>Phone</th>
+                <th>Gender</th>
+                <th>Year</th>
+                <th>Joined</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @foreach ($users as $user)
+                <tr>
+                  <td>{{ $loop->iteration }}</td>
+                  <td>{{ $user->name }}</td>
+                  <td>{{ $user->email }}</td>
+                  <td>{{ $user->id_number }}</td>
+                  <td>
+                    <span class="badge bg-label-{{ $user->role === 'admin' ? 'danger' : ($user->role === 'staff' ? 'warning' : 'success') }}">
+                      {{ ucfirst($user->role) }}
+                    </span>
+                  </td>
+                  <td>{{ $user->department ?? '-' }}</td>
+                  <td>{{ $user->phone ?? '-' }}</td>
+                  <td>{{ ucfirst($user->gender ?? '-') }}</td>
+                  <td>{{ $user->year ?? '-' }}</td>
+                  <td>{{ $user->created_at->diffForHumans() }}</td>
+                  <td>
+                    <!-- Edit Button (opens modal) -->
+                    <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editModal{{ $user->id }}">
+                      <i class="ti ti-edit"></i> Edit
+                    </button>
+
+                    @if ($user->id !== auth()->id())
+                      <form action="{{ route('admin.users.destroy', $user) }}" method="POST" class="d-inline">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete {{ $user->name }}? This cannot be undone.')">
+                          <i class="ti ti-trash"></i> Delete
+                        </button>
+                      </form>
+                    @else
+                      <span class="text-muted small">Cannot delete self</span>
+                    @endif
+                  </td>
+                </tr>
+
+                <!-- Edit Modal -->
+               <!-- Edit Modal -->
+<div class="modal fade" id="editModal{{ $user->id }}" tabindex="-1" aria-labelledby="editModalLabel{{ $user->id }}" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editModalLabel{{ $user->id }}">Edit User: {{ $user->name }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form action="{{ route('admin.users.update', $user) }}" method="POST">
+        @csrf
+        @method('PATCH')  <!-- This is critical for PATCH requests -->
+
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Name</label>
+            <input type="text" name="name" class="form-control" value="{{ old('name', $user->name) }}" required>
+            @error('name') <div class="text-danger small">{{ $message }}</div> @enderror
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input type="email" name="email" class="form-control" value="{{ old('email', $user->email) }}" required>
+            @error('email') <div class="text-danger small">{{ $message }}</div> @enderror
+          </div>
+          <div class="mb-3">
+            <label class="form-label">ID Number</label>
+            <input type="text" name="id_number" class="form-control" value="{{ old('id_number', $user->id_number) }}" required>
+            @error('id_number') <div class="text-danger small">{{ $message }}</div> @enderror
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Role</label>
+            <select name="role" class="form-select" required>
+              <option value="student" {{ old('role', $user->role) === 'student' ? 'selected' : '' }}>Student</option>
+              <option value="staff" {{ old('role', $user->role) === 'staff' ? 'selected' : '' }}>Staff</option>
+              <option value="admin" {{ old('role', $user->role) === 'admin' ? 'selected' : '' }}>Admin</option>
+            </select>
+            @error('role') <div class="text-danger small">{{ $message }}</div> @enderror
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Department</label>
+            <input type="text" name="department" class="form-control" value="{{ old('department', $user->department) }}">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Phone</label>
+            <input type="text" name="phone" class="form-control" value="{{ old('phone', $user->phone) }}">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Gender</label>
+            <select name="gender" class="form-select">
+              <option value="">Select</option>
+              <option value="male" {{ old('gender', $user->gender) === 'male' ? 'selected' : '' }}>Male</option>
+              <option value="female" {{ old('gender', $user->gender) === 'female' ? 'selected' : '' }}>Female</option>
+              <option value="other" {{ old('gender', $user->gender) === 'other' ? 'selected' : '' }}>Other</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Year</label>
+            <input type="text" name="year" class="form-control" value="{{ old('year', $user->year) }}">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">New Password (optional)</label>
+            <input type="password" name="password" class="form-control">
+            @error('password') <div class="text-danger small">{{ $message }}</div> @enderror
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Confirm Password</label>
+            <input type="password" name="password_confirmation" class="form-control">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+              @endforeach
+            </tbody>
+          </table>
+        </div>
+
+        <div class="mt-4">
+          {{ $users->links() }}
+        </div>
+      @endif
+    </div>
+  </div>
+@endif
 
           </div>
           <div class="content-backdrop fade"></div>

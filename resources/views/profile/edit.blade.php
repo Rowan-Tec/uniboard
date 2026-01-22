@@ -16,7 +16,7 @@
     <div class="layout-container">
 
       <!-- SIDEBAR -->
-      <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
+       <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
         <div class="app-brand demo">
           <a href="{{ route('dashboard') }}" class="app-brand-link">
             <span class="app-brand-text demo menu-text fw-bold">UniBoard</span>
@@ -24,7 +24,7 @@
         </div>
         <div class="menu-inner-shadow"></div>
         <ul class="menu-inner py-1">
-          <li class="menu-item">
+          <li class="menu-item active">
             <a href="{{ route('dashboard') }}" class="menu-link">
               <i class="menu-icon tf-icons ti ti-smart-home"></i>
               <div>Dashboard</div>
@@ -36,12 +36,28 @@
               <div>Notices</div>
             </a>
           </li>
-          <li class="menu-item active">
+          <li class="menu-item">
+            <a href="{{ route('lostfound.index') }}" class="menu-link">
+              <i class="menu-icon tf-icons ti ti-search"></i>
+              <div>Lost & Found</div>
+            </a>
+          </li>
+          <li class="menu-item">
             <a href="{{ route('profile.edit') }}" class="menu-link">
-              <i class="menu-icon tf-icons ti ti-user"></i>
+              <i class="menu-icon tf-icons ti ti-user-edit"></i>
               <div>Edit Profile</div>
             </a>
           </li>
+
+          @if(auth()->user()->role === 'admin')
+            <li class="menu-header small text-uppercase"><span class="menu-header-text">Admin Tools</span></li>
+            <li class="menu-item">
+              <a href="{{ route('notices.approval') }}" class="menu-link">
+                <i class="menu-icon tf-icons ti ti-shield-check"></i>
+                <div>Approve Notices ({{ $pendingNotices ?? 0 }})</div>
+              </a>
+            </li>
+          @endif
         </ul>
       </aside>
 

@@ -15,6 +15,48 @@
   <link rel="stylesheet" href="{{ asset('assets/css/demo.css') }}" />
   <link rel="stylesheet" href="{{ asset('assets/vendor/css/pages/page-auth.css') }}" />
 
+  <style>
+    body {
+      background: linear-gradient(135deg, #6a11cb 100%) !important;
+      background-size: cover;
+      background-position: center;
+      min-height: 100vh;
+      color: white;
+    }
+
+    .authentication-inner {
+      max-width: 420px;
+      margin: auto;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border: none;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      color: #333;
+    }
+
+    .card-body {
+      padding: 2.5rem;
+    }
+
+    .btn-primary {
+      background: #6a11cb;
+      border-color: #6a11cb;
+    }
+
+    .btn-primary:hover {
+      background: #2575fc;
+      border-color: #2575fc;
+    }
+
+    .text-primary {
+      color: #6a11cb !important;
+    }
+  </style>
+
   <script src="{{ asset('assets/vendor/js/helpers.js') }}"></script>
   <script src="{{ asset('assets/vendor/js/template-customizer.js') }}"></script>
   <script src="{{ asset('assets/js/config.js') }}"></script>
@@ -37,28 +79,39 @@
               </a>
             </div>
 
-            <h4 class="mb-1 text-center">Welcome back! 👋</h4>
+            <h4 class="mb-1 text-center">Welcome back!</h4>
             <p class="mb-6 text-center">Please sign in to your account</p>
 
             <form method="POST" action="{{ route('login') }}">
               @csrf
+
               <div class="mb-4">
                 <label class="form-label">Email or ID Number</label>
-                <input type="text" name="email" class="form-control" value="{{ old('email') }}" required autofocus />
+                <input type="text" name="email" class="form-control @error('email') is-invalid @enderror" 
+                       value="{{ old('email') }}" required autofocus />
+                @error('email')
+                  <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
               </div>
+
               <div class="mb-4 form-password-toggle">
                 <label class="form-label">Password</label>
                 <div class="input-group input-group-merge">
-                  <input type="password" name="password" class="form-control" required />
+                  <input type="password" name="password" class="form-control @error('password') is-invalid @enderror" required />
                   <span class="input-group-text cursor-pointer"><i class="ti ti-eye-off"></i></span>
                 </div>
+                @error('password')
+                  <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
               </div>
+
               <div class="mb-4">
                 <div class="form-check">
                   <input class="form-check-input" type="checkbox" name="remember" id="remember-me" />
                   <label class="form-check-label" for="remember-me">Remember Me</label>
                 </div>
               </div>
+
               <button type="submit" class="btn btn-primary d-grid w-100">Login</button>
             </form>
 

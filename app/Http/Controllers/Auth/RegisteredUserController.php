@@ -28,23 +28,35 @@ class RegisteredUserController extends Controller
      * @throws \Illuminate\Validation\ValidationException
      */
     public function store(Request $request): RedirectResponse
-    {
-        $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        ]);
+{
+    $request->validate([
+        'name' => ['required', 'string', 'max:255'],
+        'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+        'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        'id_number' => ['required', 'string', 'max:20', 'unique:users,id_number'],
+        'phone' => ['nullable', 'string', 'max:15'],
+        'department' => ['required', 'string', 'max:100'],
+        'gender' => ['required', 'in:male,female,other'],
+        'year' => ['required', 'string', 'max:10'],
+        'profile_photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
+    ]);
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
+    $data = $request->only([
+        'name', 'email', 'id_number', 'phone', 'department', 'gender', 'year'
+    ]);
+    $data['password'] = Hash::make($request->password);
 
-        event(new Registered($user));
-
-        Auth::login($user);
-
-        return redirect(route('dashboard', absolute: false));
+    // Handle profile photo upload
+    if ($request->hasFile('profile_photo')) {
+        $path = $request->file('profile_photo')->store('profile_photos', 'public');
+        $data['profile_photo_path'] = $path;
     }
+
+    $user = User::create($data);
+
+    event(new Registered($user));
+    Auth::login($user);
+
+    return redirect(route('dashboard', absolute: false));
+}
 }

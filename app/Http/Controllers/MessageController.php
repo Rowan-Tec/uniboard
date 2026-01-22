@@ -6,8 +6,10 @@ use App\Events\MessageSent;
 use App\Events\UserTyping;
 use App\Models\Message;
 use App\Models\User;
+use App\Services\PushNotificationService; // ← Add this import
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class MessageController extends Controller
 {
@@ -103,8 +105,17 @@ class MessageController extends Controller
             'message' => $request->message,
         ]);
 
-        // Broadcast to both parties
+        // Broadcast to both parties (real-time)
         broadcast(new MessageSent($msg))->toOthers();
+
+        // ★★★ STEP 8: Send push notification to receiver ★★★
+        $push = new PushNotificationService();
+        $push->sendToUser(
+            $user->id,                              // Receiver's user ID
+            'New message from ' . Auth::user()->name, // Title
+            Str::limit($request->message, 50),       // Body (shortened)
+            route('messages.show', Auth::id())       // URL to open chat
+        );
 
         return response()->json([
             'success' => true,

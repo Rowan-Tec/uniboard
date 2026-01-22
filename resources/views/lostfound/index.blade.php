@@ -15,37 +15,45 @@
       <!-- SIDEBAR -->
       <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
         <div class="app-brand demo">
-          <a href="{{ route('dashboard') }}" class="app-brand-link">
+          <a href="http://127.0.0.1:8000/dashboard" class="app-brand-link">
             <span class="app-brand-text demo menu-text fw-bold">UniBoard</span>
           </a>
         </div>
         <div class="menu-inner-shadow"></div>
         <ul class="menu-inner py-1">
-          <li class="menu-item">
-            <a href="{{ route('dashboard') }}" class="menu-link">
+          <li class="menu-item active">
+            <a href="http://127.0.0.1:8000/dashboard" class="menu-link">
               <i class="menu-icon tf-icons ti ti-smart-home"></i>
               <div>Dashboard</div>
             </a>
           </li>
           <li class="menu-item">
-            <a href="{{ route('notices.index') }}" class="menu-link">
+            <a href="http://127.0.0.1:8000/notices" class="menu-link">
               <i class="menu-icon tf-icons ti ti-bell"></i>
               <div>Notices</div>
             </a>
           </li>
-          <li class="menu-item active">
-            <a href="{{ route('lostfound.index') }}" class="menu-link">
+          <li class="menu-item">
+            <a href="http://127.0.0.1:8000/lost-found" class="menu-link">
               <i class="menu-icon tf-icons ti ti-search"></i>
-              <div>Lost & Found</div>
+              <div>Lost &amp; Found</div>
             </a>
           </li>
           <li class="menu-item">
-            <a href="{{ route('profile.edit') }}" class="menu-link">
+            <a href="http://127.0.0.1:8000/profile" class="menu-link">
               <i class="menu-icon tf-icons ti ti-user-edit"></i>
               <div>Edit Profile</div>
             </a>
           </li>
-        </ul>
+
+                      <li class="menu-header small text-uppercase"><span class="menu-header-text">Admin Tools</span></li>
+            <li class="menu-item">
+              <a href="http://127.0.0.1:8000/admin/notices/approval" class="menu-link">
+                <i class="menu-icon tf-icons ti ti-shield-check"></i>
+                <div>Approve Notices (0)</div>
+              </a>
+            </li>
+                  </ul>
       </aside>
 
       <div class="layout-page">

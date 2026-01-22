@@ -1,100 +1,77 @@
-<nav x-data="{ open: false }" class="bg-white border-b border-gray-100">
-    <!-- Primary Navigation Menu -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
-            <div class="flex">
-                <!-- Logo -->
-                <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard') }}">
-                        <x-application-logo class="block h-9 w-auto fill-current text-gray-800" />
-                    </a>
-                </div>
+<nav class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-info">
+  <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
+    <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)">
+      <i class="ti ti-menu-2 ti-lg"></i>
+    </a>
+  </div>
 
-                <!-- Navigation Links -->
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        {{ __('Dashboard') }}
-                    </x-nav-link>
-                </div>
-            </div>
+  <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
+    <ul class="navbar-nav flex-row align-items-center ms-auto">
 
-            <!-- Settings Dropdown -->
-            <div class="hidden sm:flex sm:items-center sm:ms-6">
-                <x-dropdown align="right" width="48">
-                    <x-slot name="trigger">
-                        <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
-                            <div>{{ Auth::user()->name }}</div>
-
-                            <div class="ms-1">
-                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                </svg>
-                            </div>
-                        </button>
-                    </x-slot>
-
-                    <x-slot name="content">
-                        <x-dropdown-link :href="route('profile.edit')">
-                            {{ __('Profile') }}
-                        </x-dropdown-link>
-
-                        <!-- Authentication -->
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-
-                            <x-dropdown-link :href="route('logout')"
-                                    onclick="event.preventDefault();
-                                                this.closest('form').submit();">
-                                {{ __('Log Out') }}
-                            </x-dropdown-link>
-                        </form>
-                    </x-slot>
-                </x-dropdown>
-            </div>
-
-            <!-- Hamburger -->
-            <div class="-me-2 flex items-center sm:hidden">
-                <button @click="open = ! open" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500 transition duration-150 ease-in-out">
-                    <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                        <path :class="{'hidden': open, 'inline-flex': ! open }" class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                        <path :class="{'hidden': ! open, 'inline-flex': open }" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
-        </div>
+      <!-- Notifications Bell + Badge + Dropdown -->
+      <li class="nav-item dropdown notification-dropdown">
+  <a class="nav-link dropdown-toggle hide-arrow position-relative" href="javascript:void(0);" data-bs-toggle="dropdown">
+    <i class="ti ti-bell ti-lg"></i>
+    <span class="badge bg-danger rounded-pill position-absolute top-0 start-100 translate-middle" 
+          id="unreadCount" style="font-size: 0.75rem; min-width: 18px; height: 18px; line-height: 1.2;">
+      0
+    </span>
+  </a>
+  <ul class="dropdown-menu dropdown-menu-end p-0 shadow-lg" style="width: 340px; max-height: 420px; overflow-y: auto; border-radius: 12px;">
+    <li class="dropdown-header bg-primary text-white py-3 px-4 rounded-top">
+      <div class="d-flex justify-content-between align-items-center">
+        <h6 class="mb-0">Notifications</h6>
+        <small id="unreadText">0 unread</small>
+      </div>
+    </li>
+    <div id="notificationList" class="p-2">
+      <div class="text-center py-5 text-muted small">
+        <i class="ti ti-loader ti-spin me-2"></i> Loading...
+      </div>
     </div>
+    <li class="dropdown-footer text-center py-3 border-top">
+      <a href="{{ route('notifications.index') }}" class="btn btn-sm btn-outline-primary w-100">
+        View All
+      </a>
+    </li>
+  </ul>
+</li>
 
-    <!-- Responsive Navigation Menu -->
-    <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
-        <div class="pt-2 pb-3 space-y-1">
-            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                {{ __('Dashboard') }}
-            </x-responsive-nav-link>
-        </div>
+      <!-- Dark Mode Toggle -->
+      <li class="nav-item me-3">
+        <a href="javascript:void(0);" id="dark-mode-toggle" class="nav-link px-3 text-white">
+          <i class="ti ti-moon ti-lg me-1" id="moon-icon"></i>
+          <i class="ti ti-sun ti-lg me-1 d-none" id="sun-icon"></i>
+          <span id="mode-text">Dark Mode</span>
+        </a>
+      </li>
 
-        <!-- Responsive Settings Options -->
-        <div class="pt-4 pb-1 border-t border-gray-200">
-            <div class="px-4">
-                <div class="font-medium text-base text-gray-800">{{ Auth::user()->name }}</div>
-                <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
-            </div>
+      <!-- User Profile Dropdown -->
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
+          <img src="{{ Auth::user()->profile_photo_path ? asset('storage/' . Auth::user()->profile_photo_path) : asset('assets/img/avatars/1.png') }}" 
+               alt="user" class="rounded-circle w-px-40 h-px-40 object-fit-cover">
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end py-2">
+          <li>
+            <a class="dropdown-item d-flex align-items-center" href="{{ route('profile.edit') }}">
+              <i class="ti ti-user me-2"></i>
+              <span>Profile</span>
+            </a>
+          </li>
+          <li><hr class="dropdown-divider my-1"></li>
+          <li>
+            <form method="POST" action="{{ route('logout') }}">
+              @csrf
+              <button type="submit" class="dropdown-item d-flex align-items-center text-danger">
+                <i class="ti ti-logout me-2"></i>
+                <span>Logout</span>
+              </button>
+            </form>
+          </li>
+        </ul>
+      </li>
 
-            <div class="mt-3 space-y-1">
-                <x-responsive-nav-link :href="route('profile.edit')">
-                    {{ __('Profile') }}
-                </x-responsive-nav-link>
-
-                <!-- Authentication -->
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-
-                    <x-responsive-nav-link :href="route('logout')"
-                            onclick="event.preventDefault();
-                                        this.closest('form').submit();">
-                        {{ __('Log Out') }}
-                    </x-responsive-nav-link>
-                </form>
-            </div>
-        </div>
-    </div>
+    </ul>
+  </div>
 </nav>

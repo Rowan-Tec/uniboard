@@ -13,7 +13,8 @@
 
   <style>
     .chat-body {
-      background: #e5ddd5 url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png') repeat;
+      background: #e5ddd5;
+      background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png');
       background-size: 100% auto;
       padding: 10px;
     }
@@ -61,14 +62,53 @@
 
       <!-- Sidebar -->
       <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
-        <!-- Your sidebar code here -->
+        <div class="app-brand demo">
+          <a href="http://127.0.0.1:8000/dashboard" class="app-brand-link">
+            <span class="app-brand-text demo menu-text fw-bold">UniBoard</span>
+          </a>
+        </div>
+        <div class="menu-inner-shadow"></div>
+        <ul class="menu-inner py-1">
+          <li class="menu-item active">
+            <a href="http://127.0.0.1:8000/dashboard" class="menu-link">
+              <i class="menu-icon tf-icons ti ti-smart-home"></i>
+              <div>Dashboard</div>
+            </a>
+          </li>
+          <li class="menu-item">
+            <a href="http://127.0.0.1:8000/notices" class="menu-link">
+              <i class="menu-icon tf-icons ti ti-bell"></i>
+              <div>Notices</div>
+            </a>
+          </li>
+          <li class="menu-item">
+            <a href="http://127.0.0.1:8000/lost-found" class="menu-link">
+              <i class="menu-icon tf-icons ti ti-search"></i>
+              <div>Lost &amp; Found</div>
+            </a>
+          </li>
+          <li class="menu-item">
+            <a href="http://127.0.0.1:8000/profile" class="menu-link">
+              <i class="menu-icon tf-icons ti ti-user-edit"></i>
+              <div>Edit Profile</div>
+            </a>
+          </li>
+
+                      <li class="menu-header small text-uppercase"><span class="menu-header-text">Admin Tools</span></li>
+            <li class="menu-item">
+              <a href="http://127.0.0.1:8000/admin/notices/approval" class="menu-link">
+                <i class="menu-icon tf-icons ti ti-shield-check"></i>
+                <div>Approve Notices (0)</div>
+              </a>
+            </li>
+                  </ul>
       </aside>
 
       <div class="layout-page">
 
         <!-- Navbar -->
         <nav class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-info">
-          <!-- Your navbar code here -->
+          <!-- Your navbar code -->
         </nav>
 
         <!-- Content -->
@@ -88,9 +128,7 @@
                         <small class="text-success">Active now</small>
                       </div>
                     </div>
-                    <a href="{{ route('messages.inbox') }}" class="btn btn-sm btn-outline-secondary">
-                      <i class="ti ti-arrow-left me-1"></i> Back to Inbox
-                    </a>
+                    <a href="{{ route('messages.inbox') }}" class="btn btn-sm btn-outline-secondary">Back to Inbox</a>
                   </div>
 
                   <!-- Chat Body -->
@@ -216,15 +254,23 @@
         },
         body: JSON.stringify({ message })
       })
-      .then(response => response.json())
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok: ' + response.status);
+        }
+        return response.json();
+      })
       .then(data => {
         if (data.success) {
           input.value = '';
         } else {
-          alert('Failed to send');
+          alert('Failed to send message');
         }
       })
-      .catch(err => console.error('Send error:', err));
+      .catch(error => {
+        console.error('Send error:', error);
+        alert('Error sending message: ' + error.message);
+      });
     });
 
     // Listen for new messages from other user (real-time)

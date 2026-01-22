@@ -131,6 +131,7 @@
                             <p class="flex-grow-1">{{ $notice->content }}</p>
 
                             <div class="mt-auto d-flex gap-2">
+                              <!-- Approve -->
                               <form method="POST" action="{{ route('notices.approve', $notice) }}" class="d-inline">
                                 @csrf
                                 <button type="submit" class="btn btn-success btn-sm">
@@ -138,6 +139,7 @@
                                 </button>
                               </form>
 
+                              <!-- Reject -->
                               <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#rejectModal{{ $notice->id }}">
                                 <i class="ti ti-x me-1"></i> Reject
                               </button>
