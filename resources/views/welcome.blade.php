@@ -270,7 +270,7 @@
             <div class="card-body p-5">
               <p class="text-muted mb-4">"UniBoard helped me find my lost wallet in less than 24 hours. Game changer!"</p>
               <div class="d-flex align-items-center">
-                <img src="https://randomuser.me/api/portraits/women/44.jpg" class="rounded-circle me-3" width="50" alt="">
+                
                 <div>
                   <h6 class="mb-0">Sarah K.</h6>
                   <small class="text-muted">2nd Year, Computer Science</small>
@@ -285,7 +285,7 @@
             <div class="card-body p-5">
               <p class="text-muted mb-4">"Real-time notices mean I never miss a deadline or event anymore."</p>
               <div class="d-flex align-items-center">
-                <img src="https://randomuser.me/api/portraits/men/32.jpg" class="rounded-circle me-3" width="50" alt="">
+                
                 <div>
                   <h6 class="mb-0">Thabo M.</h6>
                   <small class="text-muted">3rd Year, Engineering</small>
@@ -300,7 +300,7 @@
             <div class="card-body p-5">
               <p class="text-muted mb-4">"The private chat feature made group projects so much easier."</p>
               <div class="d-flex align-items-center">
-                <img src="https://randomuser.me/api/portraits/women/68.jpg" class="rounded-circle me-3" width="50" alt="">
+                
                 <div>
                   <h6 class="mb-0">Lerato N.</h6>
                   <small class="text-muted">1st Year, Business</small>

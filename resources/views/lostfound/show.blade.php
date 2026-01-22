@@ -47,7 +47,6 @@
           </li>
         </ul>
       </aside>
-      
 
       <div class="layout-page">
         <!-- NAVBAR -->
@@ -177,11 +176,13 @@
                                       View Details
                                     </a>
 
-                                    <!-- Contact Button -->
-                                    @if(auth()->id() !== $match->user_id)
+                                    <!-- Contact Button - ONLY visible to the lost item's owner -->
+                                    @if($item->type === 'lost' && auth()->id() === $item->user_id && auth()->id() !== $match->user_id)
                                       <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#contactModal{{ $match->id }}">
                                         <i class="ti ti-message-circle me-1"></i> Contact
                                       </button>
+                                    @elseif($item->type === 'lost' && auth()->id() !== $item->user_id)
+                                      <span class="text-muted small">Contact only available to the owner of the lost item</span>
                                     @else
                                       <span class="text-muted small">Your own report</span>
                                     @endif
@@ -191,36 +192,36 @@
                             </div>
                           </div>
 
-                          <!-- Contact Modal -->
-                          <div class="modal fade" id="contactModal{{ $match->id }}" tabindex="-1">
-                            <div class="modal-dialog">
-                              <div class="modal-content">
-                                <div class="modal-header">
-                                  <h5 class="modal-title">Contact {{ $match->user->name }}</h5>
-                                  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                </div>
-                                <div class="modal-body">
-                                  <p>You are about to contact the person who reported this {{ $match->type }} item.</p>
-                                  <div class="alert alert-info">
-                                    <strong>Contact Info:</strong><br>
-                                    Name: {{ $match->user->name }}<br>
-                                    ID: {{ $match->user->id_number }}<br>
-                                    @if($match->user->phone)
-                                      Phone: {{ $match->user->phone }}<br>
-                                    @endif
-                                    Email: {{ $match->user->email }}
+                          <!-- Contact Modal - only rendered if user is allowed -->
+                          @if($item->type === 'lost' && auth()->id() === $item->user_id && auth()->id() !== $match->user_id)
+                            <div class="modal fade" id="contactModal{{ $match->id }}" tabindex="-1">
+                              <div class="modal-dialog">
+                                <div class="modal-content">
+                                  <div class="modal-header">
+                                    <h5 class="modal-title">Contact {{ $match->user->name }}</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                   </div>
-                                  <p class="text-muted">Please contact them politely regarding your {{ $item->type }} item.</p>
-                                </div>
-                                <div class="modal-footer">
-                                  <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
-                                  <a href="{{ route('messages.show', $match->user) }}" class="btn btn-success btn-sm">
-  <i class="ti ti-message-circle me-1"></i> Message
-</a>
+                                  <div class="modal-body">
+                                    <p>You are about to contact the person who reported this found item.</p>
+                                    <div class="alert alert-info">
+                                      <strong>Contact Info:</strong><br>
+                                      Name: {{ $match->user->name }}<br>
+                                      ID: {{ $match->user->id_number ?? 'Not provided' }}<br>
+                                      @if($match->user->phone)
+                                        Phone: {{ $match->user->phone }}<br>
+                                      @endif
+                                      Email: {{ $match->user->email }}
+                                    </div>
+                                    <p class="text-muted">Please contact them politely regarding your lost item.</p>
+                                  </div>
+                                  <div class="modal-footer">
+                                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                                    
+                                  </div>
                                 </div>
                               </div>
                             </div>
-                          </div>
+                          @endif
                         @endforeach
                       </div>
                     </div>
@@ -246,7 +247,30 @@
 
   <!-- Dark Mode Script -->
   <script>
-    // Your dark mode script here
+    const toggle = document.getElementById('themeToggle');
+    const moon = document.getElementById('moonIcon');
+    const sun = document.getElementById('sunIcon');
+
+    if (localStorage.getItem('theme') === 'dark' || 
+        (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.setAttribute('data-bs-theme', 'dark');
+      moon.classList.add('d-none');
+      sun.classList.remove('d-none');
+    }
+
+    toggle.addEventListener('click', () => {
+      if (document.documentElement.getAttribute('data-bs-theme') === 'dark') {
+        document.documentElement.setAttribute('data-bs-theme', 'light');
+        localStorage.setItem('theme', 'light');
+        moon.classList.remove('d-none');
+        sun.classList.add('d-none');
+      } else {
+        document.documentElement.setAttribute('data-bs-theme', 'dark');
+        localStorage.setItem('theme', 'dark');
+        moon.classList.add('d-none');
+        sun.classList.remove('d-none');
+      }
+    });
   </script>
 </body>
 </html>

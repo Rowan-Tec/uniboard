@@ -218,7 +218,30 @@
 
     <!-- Dark Mode Script -->
     <script>
-      // Paste your dark mode script here
-    </script>
+    const toggle = document.getElementById('themeToggle');
+    const moon = document.getElementById('moonIcon');
+    const sun = document.getElementById('sunIcon');
+
+    if (localStorage.getItem('theme') === 'dark' || 
+        (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.setAttribute('data-bs-theme', 'dark');
+      moon.classList.add('d-none');
+      sun.classList.remove('d-none');
+    }
+
+    toggle.addEventListener('click', () => {
+      if (document.documentElement.getAttribute('data-bs-theme') === 'dark') {
+        document.documentElement.setAttribute('data-bs-theme', 'light');
+        localStorage.setItem('theme', 'light');
+        moon.classList.remove('d-none');
+        sun.classList.add('d-none');
+      } else {
+        document.documentElement.setAttribute('data-bs-theme', 'dark');
+        localStorage.setItem('theme', 'dark');
+        moon.classList.add('d-none');
+        sun.classList.remove('d-none');
+      }
+    });
+  </script>
   </body>
 </html>
