@@ -9,9 +9,11 @@ use App\Events\NotificationReceived;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class NoticeController extends Controller
 {
+    use AuthorizesRequests;
     public function index()
     {
         $notices = Notice::where('is_approved', true)
@@ -150,5 +152,29 @@ class NoticeController extends Controller
     // }
 
     return view('notices.show', compact('notice'));
+}
+/**
+ * Soft-delete a notice (only owner can do it)
+ */
+public function trash(Notice $notice)
+{
+    $this->authorize('delete', $notice); // policy will check ownership
+
+    $notice->delete(); // soft delete
+
+    return back()->with('success', 'Notice moved to trash.');
+}
+
+/**
+ * Show user's trashed notices (personal bin)
+ */
+public function trashBin()
+{
+    $trashedNotices = Notice::onlyTrashed()
+        ->where('user_id', Auth::id())
+        ->latest()
+        ->get();
+
+    return view('notices.trash', compact('trashedNotices'));
 }
 }

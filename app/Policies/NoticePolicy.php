@@ -42,13 +42,15 @@ class NoticePolicy
         return $user->role === 'admin';
     }
 
-    /**
-     * Determine whether the user can delete the notice.
-     */
-    public function delete(User $user, Notice $notice): bool
-    {
-        return $user->role === 'admin';
-    }
+   /**
+ * Determine whether the user can delete (soft-delete) the notice.
+ */
+public function delete(User $user, Notice $notice): bool
+{
+    // User can delete their own notice (soft-delete to trash)
+    // OR admin can delete any notice
+    return $user->id === $notice->user_id || $user->role === 'admin';
+}
 
     /**
      * Determine whether the user can approve the notice.
@@ -65,4 +67,5 @@ class NoticePolicy
     {
         return $user->role === 'admin';
     }
+    
 }

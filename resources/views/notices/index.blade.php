@@ -13,7 +13,7 @@
     <div class="layout-container">
 
       <!-- Sidebar -->
-       <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
+      <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
         <div class="app-brand demo">
           <a href="{{ route('dashboard') }}" class="app-brand-link">
             <span class="app-brand-text demo menu-text fw-bold">UniBoard</span>
@@ -99,7 +99,7 @@
           <div class="container-xxl flex-grow-1 container-p-y">
             <div class="d-flex align-items-center justify-content-between mb-6">
               <h4 class="fw-bold mb-0">Campus Notices</h4>
-              @if(auth()->user()->role === 'admin' || auth()->user()->role === 'staff')
+              @if( auth()->user()->role === 'staff')
                 <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#postNoticeModal">
                   <i class="ti ti-plus me-1"></i> Post Notice
                 </button>
@@ -128,9 +128,20 @@
                             Posted by {{ $notice->user->name }} • {{ $notice->created_at->diffForHumans() }}
                           </p>
                           <p class="card-text">{{ Str::limit($notice->content, 150) }}</p>
+
                           <a href="{{ route('notices.show', $notice) }}" class="btn btn-sm btn-outline-primary mt-2">
-                    Read More <i class="ti ti-arrow-right ms-1"></i>
-                  </a>
+                            Read More <i class="ti ti-arrow-right ms-1"></i>
+                          </a>
+
+                          <!-- Trash button – correctly placed INSIDE the loop -->
+                          @if($notice->user_id === auth()->id())
+                            <form method="POST" action="{{ route('notices.trash', $notice) }}" class="d-inline">
+                              @csrf
+                              <button type="submit" class="btn btn-sm btn-outline-danger mt-2" onclick="return confirm('Move this notice to trash?')">
+                                <i class="ti ti-trash me-1"></i> Trash
+                              </button>
+                            </form>
+                          @endif
                         </div>
                       </div>
                     </div>

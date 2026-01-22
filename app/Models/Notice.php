@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
+use Illuminate\Database\Eloquent\SoftDeletes;
 class Notice extends Model
 {
     use HasFactory;
+    use SoftDeletes;
 
     protected $fillable = [
         'title',
@@ -76,4 +77,5 @@ class Notice extends Model
     {
         return $query->where('is_rejected', true);
     }
+    protected $dates = ['deleted_at'];
 }
